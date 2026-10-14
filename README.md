@@ -19,13 +19,7 @@ This repo provides a **synthetic** Multiple Sclerosis (MS) patient dataset. The 
 
 ## Data Product
 
-This repo is also the data product `synthea-ms-data` with a the data product manifest, data contract, and the about page. 
-
-The docs in [`docs/`](docs/) explain each step. Read them with [Quarto](https://quarto.org):
-
-```bash
-cd docs && quarto preview
-```
+This repo is also the data product `synthea-ms-data` with a the data product manifest, data contract, and the about page.
 
 ### Data Product Manifest
 
@@ -41,9 +35,7 @@ dataproduct-cli lints the contract with the `datacontract` on the PATH. The cont
 
 ### Data Contract
 
-The ODCS file (data contract) describes the 6 tables according the [Open Data Contract Standard](https://bitol-io.github.io/open-data-contract-standard/) (ODCS) v3.2.0: per column its type, description and keys, and where the data is. A script generates a first version from the CSV files and Synthea's data dictionary.
-
-The data contract can be found in: `data/synthea-ms-data.odcs.yaml`.
+The ODCS file `data/synthea-ms-data.odcs.yaml` describes the 6 tables according the [Open Data Contract Standard](https://bitol-io.github.io/open-data-contract-standard/) (ODCS) v3.2.0: per column its type, description and keys, and where the data is. A script generates a first version from the CSV files and Synthea's data dictionary.
 
 How to regenerate, review, lint and test it: [data-contract/data-contract.md](data-contract/data-contract.md).
 

@@ -16,7 +16,7 @@ contract:
   apiVersion: v3.2.0
   id: synthea-ms-data
   name: Synthea MS Data
-  domain: clinical
+  domain: immunology and infection
   status: draft
   description:
     purpose: Synthetic patient, encounter, condition and observation data of a multiple sclerosis (MS) cohort, generated with Synthea.
@@ -24,7 +24,7 @@ contract:
     limitations: Synthetic data. Not for clinical or research conclusions.
   tags:
     - synthea
-    - multiple-sclerosis
+    - multiple sclerosis
     - MS
   # {model} is the table name. `local` is the CSV files in this repo, `rustfs` the landing bucket.
   servers:
