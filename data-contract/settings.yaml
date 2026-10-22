@@ -11,7 +11,7 @@ tables:
   - medications
   - procedures
 
-# Any ODCS top-level field, set on the contract. v3.2.0 needs datacontract-cli 1.2.4 (requirements.txt): 1.0.2 rejects it.
+# Any ODCS top-level field, set on the contract. v3.2.0 needs datacontract-cli 1.2.4 (pyproject.toml): 1.0.2 rejects it.
 contract:
   apiVersion: v3.2.0
   id: synthea-ms-data

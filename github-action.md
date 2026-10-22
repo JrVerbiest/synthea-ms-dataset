@@ -48,7 +48,7 @@ datacontract-cli fills in `{model}` with the `name` of each table under `schema:
 
 | What | Value |
 |---|---|
-| `DATAPRODUCT`, `DATACONTRACT` | The same versions as `requirements.txt`: update both together |
+| `DATAPRODUCT`, `DATACONTRACT` | The same versions as `pyproject.toml`: update both together |
 | Python | 3.12, as in the README, step 7 |
 | Runners | GitHub's: free without a limit for a public repo ([billing](https://docs.github.com/en/billing/concepts/product-billing/github-actions)) |
 | Permissions, keys | Read the repo only; no key, as the data is in the repo |

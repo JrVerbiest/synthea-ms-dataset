@@ -38,7 +38,7 @@ The same CSV files, wiki page, settings and datacontract-cli version always give
 | `output` | Where the contract is written: `data-contract/synthea-ms-data.odcs.yaml` |
 | `tables` | The tables, in the order they appear in the contract |
 | `contract` | ODCS top-level fields, set on the contract: `apiVersion`, `id`, `name`, `domain`, `status`, `description`, `tags` and `servers` |
-| `contract.apiVersion` | `v3.2.0`. It needs datacontract-cli 1.2.4 from `requirements.txt`, also on the PATH: dataproduct-cli lints the contract with the `datacontract` it finds there, and 1.0.2 rejects v3.2.0 ([Lint](odps-about.qmd#lint)) |
+| `contract.apiVersion` | `v3.2.0`. It needs datacontract-cli 1.2.4 from `pyproject.toml`, also on the PATH: dataproduct-cli lints the contract with the `datacontract` it finds there, and 1.0.2 rejects v3.2.0 ([Lint](odps-about.qmd#lint)) |
 | `contract.servers` | Where the data is; `{model}` is the table name. `local`: the CSV files in this repo, `data/csv/{model}.csv`. `rustfs`: the landing bucket, `s3://synthea-ms-data/dev/v1/{model}.csv` ([Landing bucket](landing-bucket.qmd)) |
 | `overrides` | Fields applied last: `<table>` sets fields on the schema object, `<table>.<COLUMN>` on a column. Today one: the description of `conditions.CODE` |
 

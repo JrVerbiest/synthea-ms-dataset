@@ -31,7 +31,7 @@ dataproduct lint synthea-ms-data.odps.yaml --local-references
 
 It checks the file against the ODPS JSON schema. With `--local-references` it also looks in the repo for the contract with the `id` in `contractId`, prints `resolvable: Found at data/synthea-ms-data.odcs.yaml`, and lints that contract. It ends with `🟢 Data product is valid.`
 
-dataproduct-cli lints the contract with the `datacontract` on the PATH. The contract is ODCS v3.2.0, which needs datacontract-cli 1.2.4 from `requirements.txt`: an older one, such as 1.0.2, fails the contract, yet `dataproduct lint` exits `0`. So run it in the repo's virtual environment.
+dataproduct-cli lints the contract with the `datacontract` on the PATH. The contract is ODCS v3.2.0, which needs datacontract-cli 1.2.4 from `pyproject.toml`: an older one, such as 1.0.2, fails the contract, yet `dataproduct lint` exits `0`. So run it in the repo's virtual environment.
 
 ### Data Contract
 
@@ -188,27 +188,22 @@ into `data/csv`.
 
 ### Step 7 — Create environment
 
-The Python environment is managed with [uv](https://docs.astral.sh/uv/). Create the virtual environment with Python 3.12, activate it and install the dependencies:
+The Python environment is managed with [uv](https://docs.astral.sh/uv/). Create the virtual environment with Python 3.12 and install the locked dependencies, then activate it:
 
 ```bash
-uv venv --python 3.12 --seed --prompt synthea-ms-data .venv
+uv sync
 source .venv/bin/activate
-uv pip install -r requirements.txt
 ```
-
-`--seed` adds `pip` to the environment, which uv omits by default; IDEs such as VS Code use it to list installed packages. Activating before installing ensures `uv pip` targets this environment rather than another that happens to be active.
-
-> 💡 Without uv, the standard library works as well: `python3.12 -m venv --prompt synthea-ms-data .venv && source .venv/bin/activate && pip install -r requirements.txt`.
 
 Verify the installation:
 
 ```bash
-uv pip show jupyter pandas   # or: pip show jupyter pandas
+uv pip show jupyter pandas
 datacontract --version       # 1.2.4
 dataproduct --version        # 0.3.2
 ```
 
-`requirements.txt` holds `jupyter`, `pandas` and `matplotlib` for the notebook, and `datacontract-cli[csv,duckdb]` and `dataproduct-cli` for the [Data Product](#data-product), pinned so a reproduction uses the same versions.
+`pyproject.toml` holds `jupyter`, `pandas` and `matplotlib` for the notebook, and `datacontract-cli[csv,duckdb]` and `dataproduct-cli` for the [Data Product](#data-product), locked in `uv.lock` so a reproduction uses the same versions.
 
 ---
 
