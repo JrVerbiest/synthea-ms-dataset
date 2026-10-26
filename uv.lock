@@ -2746,12 +2746,16 @@ wheels = [
 ]
 
 [[package]]
-name = "synthea-ms-data"
+name = "synthea-ms-dataset"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
     { name = "datacontract-cli", extra = ["csv", "duckdb"] },
     { name = "dataproduct-cli" },
+]
+
+[package.dev-dependencies]
+notebook = [
     { name = "jupyter" },
     { name = "matplotlib" },
     { name = "pandas" },
@@ -2761,6 +2765,10 @@ dependencies = [
 requires-dist = [
     { name = "datacontract-cli", extras = ["csv", "duckdb"], specifier = "==1.2.4" },
     { name = "dataproduct-cli", specifier = "==0.3.2" },
+]
+
+[package.metadata.requires-dev]
+notebook = [
     { name = "jupyter", specifier = ">=1.1.1" },
     { name = "matplotlib", specifier = ">=3.11.2" },
     { name = "pandas", specifier = ">=3.0.6" },

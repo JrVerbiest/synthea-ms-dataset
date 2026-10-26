@@ -1,8 +1,8 @@
 version: 1.0.0
 kind: DataContract
 apiVersion: v3.2.0
-id: synthea-ms-data
-name: Synthea MS Data
+id: synthea-ms-dataset
+name: Synthea MS Dataset
 tags:
 - synthea
 - multiple sclerosis

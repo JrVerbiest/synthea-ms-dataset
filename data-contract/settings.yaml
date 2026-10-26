@@ -1,6 +1,6 @@
 # Settings of generate_contract.py. Paths are relative to the repo root, where you run it and `datacontract test`.
 data: data/csv
-output: data-contract/synthea-ms-data.odcs.yaml
+output: data-contract/synthea-ms-dataset.odcs.yaml
 
 # Tables to merge, in this order
 tables:
@@ -11,11 +11,11 @@ tables:
   - medications
   - procedures
 
-# Any ODCS top-level field, set on the contract. v3.2.0 needs datacontract-cli 1.2.4 (pyproject.toml): 1.0.2 rejects it.
+# Any ODCS top-level field, set on the contract. v3.2.0 needs the datacontract-cli version pinned in pyproject.toml: older ones reject it.
 contract:
   apiVersion: v3.2.0
-  id: synthea-ms-data
-  name: Synthea MS Data
+  id: synthea-ms-dataset
+  name: Synthea MS Dataset
   domain: immunology and infection
   status: draft
   description:
@@ -26,7 +26,7 @@ contract:
     - synthea
     - multiple sclerosis
     - MS
-  # {model} is the table name. `local` is the CSV files in this repo, `rustfs` the landing bucket.
+  # {model} is the table name. `local` is the CSV files in this repo. Add a server per place the data lands, e.g. `<server-name>` for a bucket.
   servers:
     - server: local
       type: local

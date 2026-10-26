@@ -1,6 +1,6 @@
 # Data contract
 
-The ODCS file (data contract) describes the 6 tables according the [Open Data Contract Standard](https://bitol-io.github.io/open-data-contract-standard/) (ODCS) v3.2.0: per column its type, description and keys, and where the data is. A script generates a first version from the CSV files and Synthea's data dictionary; after review it moves to `data/synthea-ms-data.odcs.yaml`.
+The ODCS file (data contract) describes the 6 tables according the [Open Data Contract Standard](https://bitol-io.github.io/open-data-contract-standard/) (ODCS) v3.2.0: per column its type, description and keys, and where the data is. A script generates a first version from the CSV files and Synthea's data dictionary; after review it moves to `data/synthea-ms-dataset.odcs.yaml`.
 
 | File | What |
 |---|---|
@@ -35,16 +35,16 @@ The same CSV files, wiki page, settings and datacontract-cli version always give
 | Key | What |
 |---|---|
 | `data` | The folder with the CSV files: `data/csv` |
-| `output` | Where the contract is written: `data-contract/synthea-ms-data.odcs.yaml` |
+| `output` | Where the contract is written: `data-contract/synthea-ms-dataset.odcs.yaml` |
 | `tables` | The tables, in the order they appear in the contract |
 | `contract` | ODCS top-level fields, set on the contract: `apiVersion`, `id`, `name`, `domain`, `status`, `description`, `tags` and `servers` |
-| `contract.apiVersion` | `v3.2.0`. It needs datacontract-cli 1.2.4 from `pyproject.toml`, also on the PATH: dataproduct-cli lints the contract with the `datacontract` it finds there, and 1.0.2 rejects v3.2.0 ([Lint](odps-about.qmd#lint)) |
-| `contract.servers` | Where the data is; `{model}` is the table name. `local`: the CSV files in this repo, `data/csv/{model}.csv`. `rustfs`: the landing bucket, `s3://synthea-ms-data/dev/v1/{model}.csv` ([Landing bucket](landing-bucket.qmd)) |
+| `contract.apiVersion` | `v3.2.0`. It needs the datacontract-cli version pinned in `pyproject.toml`, also on the PATH: dataproduct-cli lints the contract with the `datacontract` it finds there, and an older version rejects v3.2.0 |
+| `contract.servers` | Where the data is; `{model}` is the table name. `local`: the CSV files in this repo, `data/csv/{model}.csv`. `<server-name>`: placeholder for a remote location such as a landing bucket, `<scheme>://<bucket>/<path>/{model}.csv` |
 | `overrides` | Fields applied last: `<table>` sets fields on the schema object, `<table>.<COLUMN>` on a column. Today one: the description of `conditions.CODE` |
 
 ## 2. Review and enrich
 
-Read `data-contract/synthea-ms-data.odcs.yaml` and improve it by hand:
+Read `data-contract/synthea-ms-dataset.odcs.yaml` and improve it by hand:
 
 - The descriptions: the wiki's are short, e.g. add codes and units.
 - The fake personal data in `patients`: `SSN`, `DRIVERS`, `PASSPORT`, the names and the addresses. Mark them with `classification`, e.g. `classification: confidential` on the column.
@@ -60,25 +60,25 @@ overrides:
 
 ## 3. Move it to `data/`
 
-The first time:
+If `data/` has no contract yet:
 
 ```sh
-mv data-contract/synthea-ms-data.odcs.yaml data/
+mv data-contract/synthea-ms-dataset.odcs.yaml data/
 ```
 
-After a later generation, e.g. after a new Synthea run, compare the new version with the one in `data/` first:
+If `data/` already has a contract, e.g. after a new Synthea run, don't move the new one over it: compare the new version with the one in `data/` first:
 
 ```sh
-datacontract changelog data/synthea-ms-data.odcs.yaml data-contract/synthea-ms-data.odcs.yaml
-datacontract breaking --no-inline-references data/synthea-ms-data.odcs.yaml data-contract/synthea-ms-data.odcs.yaml
+datacontract changelog data/synthea-ms-dataset.odcs.yaml data-contract/synthea-ms-dataset.odcs.yaml
+datacontract breaking --no-inline-references data/synthea-ms-dataset.odcs.yaml data-contract/synthea-ms-dataset.odcs.yaml
 ```
 
-`changelog` lists every added, removed and changed field, including your hand edits, which a generation doesn't make: carry those over before you move the file. `breaking` exits `1` on a change that breaks a consumer, such as a removed or retyped column. Publish a breaking change as a new version, not over the old one: path `dev/v2/` in the landing bucket, a new contract `version` and a new Output Port, so `dp_ms_core_data` moves over in its own time.
+`changelog` lists every added, removed and changed field, including your hand edits, which a generation doesn't make: carry those over before you move the file. `breaking` exits `1` on a change that breaks a consumer, such as a removed or retyped column. Publish a breaking change as a new version, not over the old one: a new contract `version` and a new Output Port, so `dp_ms_core_data` moves over in its own time.
 
 ## 4. Lint
 
 ```sh
-datacontract lint --no-inline-references data/synthea-ms-data.odcs.yaml
+datacontract lint --no-inline-references data/synthea-ms-dataset.odcs.yaml
 ```
 
 It checks the file against the ODCS JSON schema of its `apiVersion`, and ends with `🟢 Data contract is valid.` `--no-inline-references` leaves references to other websites, such as a definition URL, unread: lint checks the file only.
@@ -86,7 +86,7 @@ It checks the file against the ODCS JSON schema of its `apiVersion`, and ends wi
 ## 5. Test
 
 ```sh
-datacontract test --no-inline-references --server local data/synthea-ms-data.odcs.yaml
+datacontract test --no-inline-references --server local data/synthea-ms-dataset.odcs.yaml
 ```
 
 It reads the CSV files of the server `local` with DuckDB and run all the checks, such as each column's type, no missing values where `required`, no duplicates where `unique`, and each relationship. 

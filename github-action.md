@@ -1,6 +1,6 @@
 # GitHub Action
 
-The workflow [`.github/workflows/ci.yml`](.github/workflows/ci.yml) checks the data product on each pull request, each push to `main`, and by hand with "Run workflow" in the Actions tab. Its one job, `check`, fails when the ODPS file or the data contract is invalid, when a pull request breaks the contract, or when the CSV files in `data/csv/` no longer match the contract. That job is the gate before an upload to the landing bucket.
+The workflow [`.github/workflows/ci.yml`](.github/workflows/ci.yml) checks the data product on each pull request, each push to `main`, and by hand with "Run workflow" in the Actions tab. Its one job, `check`, fails when the ODPS file or the data contract is invalid, when a pull request breaks the contract, or when the CSV files in `data/csv/` no longer match the contract. That job is the gate before the data is published to a consumer.
 
 ```mermaid
 flowchart TD
@@ -16,7 +16,7 @@ flowchart TD
   B -->|fails| X
   T -->|fails| X["Red: a pull request can't merge"]
   T -->|passes| OK["Green: a pull request can merge"]
-  OK -.->|by hand, from your own machine| U["Upload to the landing bucket"]
+  OK -.->|by hand, from your own machine| U["Publish the data"]
   classDef fail fill:#f8d0d0,stroke:#c62828,color:#000
   classDef pass fill:#d4edda,stroke:#2e7d32,color:#000
   class X fail
@@ -48,12 +48,12 @@ datacontract-cli fills in `{model}` with the `name` of each table under `schema:
 
 | What | Value |
 |---|---|
-| `DATAPRODUCT`, `DATACONTRACT` | The same versions as `pyproject.toml`: update both together |
+| Tool versions | Installed from `uv.lock` with `uv sync --locked`, so CI and a local run use the same versions of `datacontract-cli` and `dataproduct-cli` |
 | Python | 3.12, as in the README, step 7 |
 | Runners | GitHub's: free without a limit for a public repo ([billing](https://docs.github.com/en/billing/concepts/product-billing/github-actions)) |
 | Permissions, keys | Read the repo only; no key, as the data is in the repo |
 | `concurrency` | A new push cancels the run still busy on the same branch |
-| Not in CI | The upload to RustFS and the portal: GitHub's runners can't reach them |
+| Not in CI | Publishing the data and registering the data product in a portal: GitHub's runners can't reach those targets |
 | Never | A self-hosted runner, e.g. on your Mac: in a public repo anyone can open a pull request and run code on it ([GitHub's security guide](https://docs.github.com/en/actions/reference/security/secure-use)) |
 
 ## Run it locally
@@ -61,9 +61,9 @@ datacontract-cli fills in `{model}` with the `name` of each table under `schema:
 From the repo root, in the Python environment of the README, step 7:
 
 ```sh
-dataproduct lint synthea-ms-data.odps.yaml --local-references
-datacontract lint --no-inline-references data/synthea-ms-data.odcs.yaml
-datacontract test --no-inline-references --server local data/synthea-ms-data.odcs.yaml
+dataproduct lint synthea-ms-dataset.odps.yaml --local-references
+datacontract lint --no-inline-references data/synthea-ms-dataset.odcs.yaml
+datacontract test --no-inline-references --server local data/synthea-ms-dataset.odcs.yaml
 ```
 
 ## Require the check

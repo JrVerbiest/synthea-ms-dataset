@@ -7,7 +7,6 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Synthea](https://img.shields.io/badge/built%20with-Synthea-blue)](https://github.com/JrVerbiest/synthea)
 [![Python 3.12](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/)
-[![Data Contract CLI](https://img.shields.io/badge/datacontract--cli-1.2.4-blue)](https://cli.datacontract.com/)
 [![ODCS](https://img.shields.io/badge/Open%20Data%20Contract%20Standard-v3.2.0-blue)](https://bitol-io.github.io/open-data-contract-standard/latest/)
 
 This repo provides a **synthetic** Multiple Sclerosis (MS) patient dataset. The data can be found in folder `/data/csv`. It is generated using [Synthea](https://github.com/synthetichealth/synthea) and the MS Disease Trajectory module.
@@ -17,25 +16,32 @@ This repo provides a **synthetic** Multiple Sclerosis (MS) patient dataset. The 
 
 ---
 
-## Data Product
+## Data Product Definition (ODPS & ODCS)
 
-This repo is also the data product `synthea-ms-data` with a the data product manifest, data contract, and the about page.
+The dataset is meant to be used in a data product, so the repo also ships two machine-readable files that define it:
+
+- a Data Product Manifest according to the Open Data Product Standard (ODPS)
+- a Data Contract according to the Open Data Contract Standard (ODCS)
 
 ### Data Product Manifest
 
 The ODPS file (data product manifest) describes the data product and its output port and is written according the [Open Data Product Standard](https://github.com/bitol-io/open-data-product-standard) (ODPS) v1.1.0.
 
 ```sh
-dataproduct lint synthea-ms-data.odps.yaml --local-references
+dataproduct lint synthea-ms-dataset.odps.yaml --local-references
 ```
 
-It checks the file against the ODPS JSON schema. With `--local-references` it also looks in the repo for the contract with the `id` in `contractId`, prints `resolvable: Found at data/synthea-ms-data.odcs.yaml`, and lints that contract. It ends with `🟢 Data product is valid.`
+It checks the file against the ODPS JSON schema. With `--local-references` it also looks in the repo for the contract with the `id` in `contractId`, prints `resolvable: Found at data/synthea-ms-dataset.odcs.yaml`, and lints that contract. It ends with `🟢 Data product is valid.`
 
-dataproduct-cli lints the contract with the `datacontract` on the PATH. The contract is ODCS v3.2.0, which needs datacontract-cli 1.2.4 from `pyproject.toml`: an older one, such as 1.0.2, fails the contract, yet `dataproduct lint` exits `0`. So run it in the repo's virtual environment.
+dataproduct-cli lints the contract with the `datacontract` on the PATH. The contract is ODCS v3.2.0, which needs the datacontract-cli version pinned in `pyproject.toml`: an older one fails the contract, yet `dataproduct lint` still exits `0`. So run it in the repo's virtual environment, and don't rely on the exit code alone: check that the output ends with `🟢 Data product is valid.`, and lint the contract directly, which does exit non-zero when it is invalid:
+
+```sh
+datacontract lint --no-inline-references data/synthea-ms-dataset.odcs.yaml
+```
 
 ### Data Contract
 
-The ODCS file `data/synthea-ms-data.odcs.yaml` describes the 6 tables according the [Open Data Contract Standard](https://bitol-io.github.io/open-data-contract-standard/) (ODCS) v3.2.0: per column its type, description and keys, and where the data is. A script generates a first version from the CSV files and Synthea's data dictionary.
+The ODCS file `data/synthea-ms-dataset.odcs.yaml` describes the 6 tables according the [Open Data Contract Standard](https://bitol-io.github.io/open-data-contract-standard/) (ODCS) v3.2.0: per column its type, description and keys, and where the data is. A script generates a first version from the CSV files and Synthea's data dictionary.
 
 How to regenerate, review, lint and test it: [data-contract/data-contract.md](data-contract/data-contract.md).
 
@@ -199,11 +205,11 @@ Verify the installation:
 
 ```bash
 uv pip show jupyter pandas
-datacontract --version       # 1.2.4
-dataproduct --version        # 0.3.2
+datacontract --version
+dataproduct --version
 ```
 
-`pyproject.toml` holds `jupyter`, `pandas` and `matplotlib` for the notebook, and `datacontract-cli[csv,duckdb]` and `dataproduct-cli` for the [Data Product](#data-product), locked in `uv.lock` so a reproduction uses the same versions.
+The two versions must match the ones pinned in `pyproject.toml`, which holds `jupyter`, `pandas` and `matplotlib` for the notebook, and `datacontract-cli[csv,duckdb]` and `dataproduct-cli` for the [Data Product Definition](#data-product-definition-odps--odcs), locked in `uv.lock` so a reproduction uses the same versions.
 
 ---
 

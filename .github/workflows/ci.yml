@@ -14,10 +14,8 @@ permissions:
   contents: read
 
 env:
-  ODPS: synthea-ms-data.odps.yaml
-  CONTRACT: data/synthea-ms-data.odcs.yaml
-  DATAPRODUCT: dataproduct-cli==0.3.2
-  DATACONTRACT: datacontract-cli[csv,duckdb]==1.2.4
+  ODPS: synthea-ms-dataset.odps.yaml
+  CONTRACT: data/synthea-ms-dataset.odcs.yaml
 
 jobs:
   check:
@@ -28,20 +26,26 @@ jobs:
       - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
         with:
           python-version: "3.12"
+      - name: Install locked tools
+        # Only the contract tools: the notebook group is not needed to check the data product
+        run: uv sync --locked --no-group notebook
       - name: Lint
+        shell: bash
         run: |
-          uvx --from "$DATAPRODUCT" dataproduct lint "$ODPS" --local-references
-          uvx --from "$DATACONTRACT" datacontract lint --no-inline-references "$CONTRACT"
+          # dataproduct lint can exit 0 when the contract is invalid, so also check its output
+          uv run --no-sync dataproduct lint "$ODPS" --local-references | tee "$RUNNER_TEMP/dataproduct-lint.txt"
+          grep -q "Data product is valid" "$RUNNER_TEMP/dataproduct-lint.txt"
+          uv run --no-sync datacontract lint --no-inline-references "$CONTRACT"
       - name: Compare with main
         if: github.event_name == 'pull_request'
         run: |
           git fetch --quiet --depth=1 origin main
           if git cat-file -e "FETCH_HEAD:$CONTRACT" 2>/dev/null; then
             git show "FETCH_HEAD:$CONTRACT" > "$RUNNER_TEMP/main.odcs.yaml"
-            uvx --from "$DATACONTRACT" datacontract breaking --no-inline-references "$RUNNER_TEMP/main.odcs.yaml" "$CONTRACT"
+            uv run --no-sync datacontract breaking --no-inline-references "$RUNNER_TEMP/main.odcs.yaml" "$CONTRACT"
           fi
           if git cat-file -e "FETCH_HEAD:$ODPS" 2>/dev/null; then
             [ "$(git show "FETCH_HEAD:$ODPS" | grep '^name:')" = "$(grep '^name:' "$ODPS")" ] || { echo "::error::The ODPS name changed"; exit 1; }
           fi
       - name: Contract test on data/csv
-        run: uvx --from "$DATACONTRACT" datacontract test --no-inline-references --server local "$CONTRACT"
+        run: uv run --no-sync datacontract test --no-inline-references --server local "$CONTRACT"
