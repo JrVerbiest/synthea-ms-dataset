@@ -32,12 +32,6 @@ contract:
       type: local
       format: csv
       path: data/csv/{model}.csv
-    - server: rustfs
-      type: s3
-      environment: dev
-      format: csv
-      location: s3://synthea-ms-data/dev/v1/{model}.csv
-      endpointUrl: http://127.0.0.1:9000
 
 # Hand-written fields, applied last. `<table>` sets fields on the schema object, `<table>.<COLUMN>` on the column.
 overrides:
