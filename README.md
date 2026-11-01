@@ -9,9 +9,9 @@
 [![Python 3.12](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/)
 [![ODCS](https://img.shields.io/badge/Open%20Data%20Contract%20Standard-v3.2.0-blue)](https://bitol-io.github.io/open-data-contract-standard/latest/)
 
-This repo provides a **synthetic** Multiple Sclerosis (MS) patient dataset. The data can be found in folder `/data/csv`. It is generated using [Synthea](https://github.com/synthetichealth/synthea) and the MS Disease Trajectory module.
+This repo provides a **synthetic** Multiple Sclerosis (MS) patient dataset. The data can be found in folder `/data/csv`.
 
-> **⚠️ Usage Limitation:** This dataset is specific **developed for use in a reference data product design**.
+> **⚠️ Usage Limitation:** This dataset is specific **developed for use in a reference / example data product design**.
 > It may **NOT** be used for clinical decision-making, statistical modelling, patient care, or any production healthcare application.
 
 ---
@@ -20,12 +20,12 @@ This repo provides a **synthetic** Multiple Sclerosis (MS) patient dataset. The 
 
 The dataset is meant to be used in a data product, so the repo also ships two machine-readable files that define it:
 
-- a Data Product Manifest according to the Open Data Product Standard (ODPS)
+- a Data Product Manifest (`synthea-ms-dataset.odps.yaml`) according to the Open Data Product Standard (ODPS) v1.1.0
 - a Data Contract according to the Open Data Contract Standard (ODCS)
 
 ### Data Product Manifest
 
-The ODPS file (data product manifest) describes the data product and its output port and is written according the [Open Data Product Standard](https://github.com/bitol-io/open-data-product-standard) (ODPS) v1.1.0.
+The ODPS file `synthea-ms-dataset.odps.yaml` (data product manifest) describes the data product and its output port and is written according to the [Open Data Product Standard](https://github.com/bitol-io/open-data-product-standard) (ODPS) v1.1.0. It is a **starter**: copy it into your own data product and adapt it, at least with your own `id`.
 
 ```sh
 dataproduct lint synthea-ms-dataset.odps.yaml --local-references
@@ -51,25 +51,18 @@ How to regenerate, review, lint and test it: [data-contract/data-contract.md](da
 
 The repo contains everything that is needed to regenerate the dataset from scratch — the disease module, the keep filter, a notebook that corrects the raw output, and step-by-step instructions for Unix-like terminals (Linux, macOS, WSL). A fixed random seed makes every run reproducible on any machine.
 
-> Note: The MS Disease Trajectory module simulates the disease trajectory of Multiple Sclerosis (MS) using a data-driven, synthetic patient modelling approach. It was developed as part of a master's thesis by **N. Rabah** at Universiteit Hasselt (master in Systems and Process Innovation in Healthcare), titled *["A Data-Driven Approach to Develop a Multiple Sclerosis Disease Trajectory using Modelling Techniques for Synthetic Data"](https://documentserver.uhasselt.be/bitstream/1942/46945/1/ebb0f956-7089-4e50-bd4d-29ceb47f9906.pdf)* - The unmodified MS Disease Trajectory module can be found on [GitHub](https://github.com/UHasselt-BiomedicalDataSciences/MS-Disease-Trajectory-Synthea.git).
-
 ### Step 1 — Clone Synthea repositories
 
 This dataset was generated using [JrVerbiest/synthea](https://github.com/JrVerbiest/synthea) (a fork of [synthetichealth/synthea](https://github.com/synthetichealth/synthea)) at commit [`d9d07a6`](https://github.com/JrVerbiest/synthea/commit/d9d07a6eef91ee5144293b42ab64224d84d124f8).
 
-```bash
-git clone https://github.com/JrVerbiest/synthea.git
-cd synthea
-```
-
-> 💡 **Shortcut:** the [`enable-csv-export-ms-module`](https://github.com/JrVerbiest/synthea/tree/enable-csv-export-ms-module) branch already contains the corrected module file (Step 2), `synthea.properties` changes (Step 3), and the keep filter (Step 4). Checking it out lets you skip straight to Step 5.
+> 💡 The [`enable-csv-export-ms-module`](https://github.com/JrVerbiest/synthea/tree/enable-csv-export-ms-module) branch already contains the modified MS Disease Trajectory module file, with`synthea.properties` changes applied, and the keep filter.
 >
 > ```bash
 > git clone --branch enable-csv-export-ms-module https://github.com/JrVerbiest/synthea.git
 > cd synthea
 > ```
 
-### Step 2 — Install the MS Disease Trajectory Module
+**a. MS Disease Trajectory Module**
 
 > **⚠️ The MS Disease Trajectory module has been modified to generate a dataset for both development and testing data transformation pipelines.**<br>
 > **⚠️ These modifications are NOT CLINICALLY VALIDATED.**
@@ -77,9 +70,9 @@ cd synthea
 The applied modifications - changelog - are described in
 [`module/module-modifications.md`](module/module-modifications.md).
 
-Copy `module/multiple_sclerosis_disease_trajectory.json` (from this repo) into `synthea/src/main/resources/modules/`.
-
-### Step 3 — `synthea.properties`
+> Background: The MS Disease Trajectory module simulates the disease trajectory of Multiple Sclerosis (MS) using a data-driven, synthetic patient modelling approach. It was developed as part of a master's thesis by **N. Rabah** at Universiteit Hasselt (master in Systems and Process Innovation in Healthcare), titled *["A Data-Driven Approach to Develop a Multiple Sclerosis Disease Trajectory using Modelling Techniques for Synthetic Data"](https://documentserver.uhasselt.be/bitstream/1942/46945/1/ebb0f956-7089-4e50-bd4d-29ceb47f9906.pdf)* - The unmodified MS Disease Trajectory module can be found on [GitHub](https://github.com/UHasselt-BiomedicalDataSciences/MS-Disease-Trajectory-Synthea.git).
+> 
+**b. `synthea.properties`**
 
 In `synthea/src/main/resources/synthea.properties`, set:
 
@@ -92,7 +85,7 @@ exporter.years_of_history = 0
 
 2. `exporter.years_of_history` — The number of years of patient history to include in patient records, defaults to `10`. For example, if set to 5, then all patient histories older than 5 years (from the time you execute the program) will not be included in the exported records. Note that conditions and medications that are currently active will still be exported, regardless of this setting. Set this to 0 to keep all history in the patient record.
 
-### Step 4 — Create a keep filter
+**c. Create a keep filter**
 
 Copy `filter/keep_ms.json` (from this repo) into `synthea/src/main/resources/keep_modules/keep_ms.json`.
 
@@ -139,13 +132,13 @@ This filter discards any patient without an active MS diagnosis (SNOMED CT `2470
 }
 ```
 
-### Step 5 — Build
+### Step 2 — Build
 
 ```bash
 ./gradlew build check -x test
 ```
 
-### Step 6 — Generate the dataset
+### Step 3 — Generate the dataset
 
 To generate the dataset, run:
 
@@ -192,7 +185,7 @@ From `synthea/output/` copy:
 
 into `data/csv`.
 
-### Step 7 — Create environment
+### Step 4 — Create environment
 
 The Python environment is managed with [uv](https://docs.astral.sh/uv/). Create the virtual environment with Python 3.12 and install the locked dependencies, then activate it:
 
